@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoundVault</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>🎧 SoundVault</h1>
+      <p>Monte sua playlist com músicas do YouTube</p>
+    </header>
+
+    <div class="add-song">
+      <input type="url" id="songLink" placeholder="Cole o link do YouTube..." required>
+      <button id="addSong">Adicionar</button>
+    </div>
+
+    <ul id="songList"></ul>
+
+    <div class="player-controls">
+        <button onclick="prevSong()" title="Anterior" class="icon-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M11.596 8.697l-6.363 3.692A.5.5 0 0 1 4 11.942V4.058a.5.5 0 0 1 .733-.447l6.363 3.692a.5.5 0 0 1 0 .894z"/>
+            </svg>
+        </button>
+
+        <button onclick="togglePlay()" title="Play/Pause" class="icon-btn">
+            <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M10.804 8.697l-6.363 3.692A.5.5 0 0 1 4 11.942V4.058a.5.5 0 0 1 .733-.447l6.363 3.692a.5.5 0 0 1 0 .894z"/>
+            </svg>
+        </button>
+
+        <button onclick="nextSong()" title="Próxima" class="icon-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M4.404 8.697l6.363 3.692A.5.5 0 0 0 12 11.942V4.058a.5.5 0 0 0-.733-.447L4.904 7.303a.5.5 0 0 0 0 .894z"/>
+            </svg>
+        </button>
+
+        <button onclick="toggleRepeat()" title="Repetir" class="icon-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M11.534 7H2a.5.5 0 0 1 0-1h8.879l-1.39-1.39a.5.5 0 1 1 .707-.707l2.243 2.243a.5.5 0 0 1 0 .707l-2.243 2.243a.5.5 0 1 1-.707-.707L10.879 7z"/>
+            <path d="M4.466 9H14a.5.5 0 0 0 0-1H5.121l1.39-1.39a.5.5 0 1 0-.707-.707L3.56 8.146a.5.5 0 0 0 0 .707l2.243 2.243a.5.5 0 1 0 .707-.707L5.121 9z"/>
+            </svg>
+        </button>
+    </div>
+
+
+    <footer>
+      <small>Feito com por Perdix - SoundVault</small>
+    </footer>
+
+    <!-- Player invisível -->
+    <div id="playerWrapper"><div id="player"></div></div>
+  </div>
+
+  <script>
+    let player;
+    let songs = [];
+    let currentIndex = -1;
+    let isPlaying = false;
+    let repeatMode = false;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '0',
+        width: '0',
+        playerVars: {'autoplay': 0},
+        events: {'onStateChange': onPlayerStateChange}
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        if (repeatMode) {
+          playSong(currentIndex);
+        } else {
+          nextSong();
+        }
+      }
+    }
+
+    async function fetchSongs() {
+      const res = await fetch('/songs');
+      songs = await res.json();
+      renderList();
+    }
+
+    function renderList() {
+      const list = document.getElementById('songList');
+      list.innerHTML = '';
+      songs.forEach((s, i) => {
+        const li = document.createElement('li');
+        li.classList.add('song-item');
+        if (i === currentIndex) li.classList.add('active');
+        li.innerHTML = `
+          <div class="song-info">
+            <img src="${s.thumbnail}" width="60" draggable="false">
+            <div>
+              <strong>${s.title}</strong><br>
+              <small>${s.artist}</small>
+            </div>
+          </div>
+          <div class="song-actions">
+            <button class="play" onclick="playSong(${i})" title="Tocar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="6 4 20 12 6 20 6 4"></polygon>
+                </svg>
+            </button>
+
+            <button class="delete" onclick="deleteSong(${s.id})" title="Remover">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            </button>
+
+          </div>
+        `;
+        li.draggable = true;
+        li.ondragstart = e => e.dataTransfer.setData("index", i);
+        li.ondrop = e => handleDrop(e, i);
+        li.ondragover = e => e.preventDefault();
+        list.appendChild(li);
+      });
+    }
+
+    function handleDrop(e, targetIndex) {
+      const sourceIndex = e.dataTransfer.getData("index");
+      const item = songs.splice(sourceIndex, 1)[0];
+      songs.splice(targetIndex, 0, item);
+      fetch('/reorder', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(songs.map(s => s.id))
+      });
+      renderList();
+    }
+
+    async function deleteSong(id) {
+      await fetch(`/songs/${id}`, { method: 'DELETE' });
+      fetchSongs();
+    }
+
+    async function addSong() {
+      const url = document.getElementById('songLink').value.trim();
+      if (!url) return alert("Cole um link do YouTube!");
+      await fetch('/add_link', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url})
+      });
+      document.getElementById('songLink').value = '';
+      fetchSongs();
+    }
+
+    function playSong(index) {
+      if (!songs[index]) return;
+      currentIndex = index;
+      player.loadVideoById(songs[index].video_id);
+      isPlaying = true;
+      renderList();
+    }
+
+    function nextSong() {
+      if (songs.length === 0) return;
+      currentIndex = (currentIndex + 1) % songs.length;
+      playSong(currentIndex);
+    }
+
+    function prevSong() {
+      if (songs.length === 0) return;
+      currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+      playSong(currentIndex);
+    }
+
+    function togglePlay() {
+      if (!player) return;
+      if (isPlaying) {
+        player.pauseVideo();
+      } else {
+        player.playVideo();
+      }
+      isPlaying = !isPlaying;
+    }
+
+    function toggleRepeat() {
+      repeatMode = !repeatMode;
+      const msg = repeatMode ? "🔁 Repetição ligada" : "⏹️ Repetição desligada";
+      alert(msg);
+    }
+
+    document.getElementById('addSong').addEventListener('click', addSong);
+    fetchSongs();
+  </script>
+</body>
+</html>

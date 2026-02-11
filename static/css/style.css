@@ -1,0 +1,245 @@
+/* === Reset básico === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: radial-gradient(circle at top, #1a1a1a, #000);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* === Container principal === */
+.app-container {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.app-container:hover {
+  transform: translateY(-2px);
+}
+
+/* === Cabeçalho === */
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #00f2fe, #4facfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+header p {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+/* === Campo de adicionar música === */
+.add-song {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.add-song input {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: none;
+  background: #222;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: outline 0.2s, background 0.2s;
+}
+
+.add-song input:focus {
+  outline: 2px solid #4facfe;
+  background: #1b1b1b;
+}
+
+.add-song button {
+  background: linear-gradient(90deg, #4facfe, #00f2fe);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #000;
+  transition: transform 0.1s ease, opacity 0.2s;
+}
+
+.add-song button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* === Lista de músicas === */
+#songList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.song-item {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+.song-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.song-item.active {
+  border: 2px solid #4facfe;
+  background: rgba(79, 172, 254, 0.15);
+}
+
+.song-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.song-info img {
+  border-radius: 8px;
+  width: 55px;
+  height: 55px;
+  object-fit: cover;
+}
+
+.song-info strong {
+  font-size: 0.95rem;
+}
+
+.song-info small {
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+/* === Botões de ação da lista === */
+.song-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.song-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease, color 0.2s ease;
+}
+
+.song-actions button:hover {
+  background: rgba(79, 172, 254, 0.2);
+  color: #4facfe;
+  transform: scale(1.08);
+}
+
+.song-actions svg {
+  pointer-events: none;
+}
+
+/* === Controles do player === */
+.player-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-top: 1.8rem;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 50%;
+  padding: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease, color 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: #4facfe;
+  color: #000;
+  transform: scale(1.1);
+}
+
+.player-controls svg {
+  pointer-events: none;
+}
+
+/* === Rodapé === */
+footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* === Scrollbar personalizada === */
+#songList::-webkit-scrollbar {
+  width: 6px;
+}
+
+#songList::-webkit-scrollbar-thumb {
+  background: #4facfe;
+  border-radius: 3px;
+}
+
+/* === Responsividade === */
+@media (max-width: 480px) {
+  .app-container {
+    padding: 1.2rem;
+  }
+
+  .add-song input {
+    font-size: 0.85rem;
+  }
+
+  .song-info img {
+    width: 45px;
+    height: 45px;
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+  }
+}
