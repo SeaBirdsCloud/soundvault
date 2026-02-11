@@ -65,3 +65,8 @@ def reorder_songs(new_order: list[int]):
             reordered.append(song)
     songs_db = reordered
     return {"message": "Playlist reordenada!"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
